@@ -4,25 +4,28 @@ Daniel Adan Soto
 RAG-enabled, multi-host LLM deployment using AnythingLLM, vLLM, and Cloudflare Tunnel.
 
 flowchart TD
-  %% Clients / Edge
+  %% Client
   U[User Browser]
-  CF[Cloudflare]
 
-  U -->|HTTPS 443| CF
+  %% Cloudflare Edge
+  CF_EDGE[Cloudflare\nDNS / TLS / WAF]
+  CF_TUNNEL[Cloudflare Tunnel\nRouting]
 
-  %% Application Stack (Host A)
+  U -->|HTTPS 443| CF_EDGE
+
+  %% Application Stack
   subgraph A[Application Stack]
     ING[Document Ingestion\nUpload / Parse / Chunk]
     ALLM[AnythingLLM\nUI + RAG Orchestrator]
-    VDB[(Vector Database\n(Qdrant / pgvector))]
+    VDB[(Vector Database\nQdrant / pgvector)]
 
     ING --> ALLM
     ALLM -->|upsert / search| VDB
   end
 
-  CF -->|anythingllm.mydomain.com| ALLM
+  CF_EDGE -->|anythingllm.mydomain.com| ALLM
 
-  %% Inference Stack (Host B)
+  %% Inference Stack
   subgraph B[Inference Stack]
     CFL[cloudflared\nTunnel Agent]
     EMB[Embedding Server\nOpenAI-compatible]
@@ -32,21 +35,22 @@ flowchart TD
     CFL --> VLLM
   end
 
-  %% RAG - Ingestion Path
-  ALLM -->|POST /v1/embeddings\nBearer EMB_API_KEY| CF
-  CF -->|embeddings.mydomain.com| CFL
+  %% RAG – Ingestion
+  ALLM -->|POST /v1/embeddings\nBearer EMB_API_KEY| CF_TUNNEL
+  CF_TUNNEL -->|embeddings.mydomain.com| CFL
   EMB -->|vectors| ALLM
   ALLM -->|store vectors| VDB
 
-  %% RAG - Query Path
-  ALLM -->|POST /v1/embeddings (query)\nBearer EMB_API_KEY| CF
+  %% RAG – Query
+  ALLM -->|POST /v1/embeddings (query)\nBearer EMB_API_KEY| CF_TUNNEL
   ALLM -->|similarity search (top-k)| VDB
   VDB -->|relevant chunks| ALLM
 
-  ALLM -->|POST /v1/chat/completions\nBearer VLLM_API_KEY| CF
-  CF -->|vllm.mydomain.com| CFL
+  ALLM -->|POST /v1/chat/completions\nBearer VLLM_API_KEY| CF_TUNNEL
+  CF_TUNNEL -->|vllm.mydomain.com| CFL
   VLLM -->|completion| ALLM
   ALLM -->|streamed response| U
+
 
 # Base Images:
     Cloudlab Host
