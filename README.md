@@ -17,7 +17,7 @@ RAG-enabled, multi-host LLM deployment using AnythingLLM, vLLM, and Cloudflare T
 ## Architecture
 
 ```mermaid
-flowchart TD
+flowchart BT
     subgraph A[Cloudlab]
         A1[AnythingLLM + Vector DB]
         A2[Cloudflare Tunnel]
