@@ -16,13 +16,19 @@ Homelab Host:
 
 ## Architecture
 
-## Architecture
-
 ```mermaid
 flowchart TD
-  A[AnythingLLM + Vector DB]
-  T[Cloudflare Tunnel]
-  B[vLLM + Embeddings]
+    subgraph A[Cloudlab]
+        A1[AnythingLLM + Vector DB]
+        A2[Cloudflare Tunnel]
+    end
 
-  A --> T --> B
-  B --> T --> A
+    CF[Cloudflare Tunnel]
+    
+    subgraph B[Homelab Inference Server]
+        B1[vLLM]
+        B2[Embeddings]
+    end
+  
+    A --> T --> B
+    B --> T --> A
