@@ -20,15 +20,15 @@ RAG-enabled, multi-host LLM deployment using AnythingLLM, vLLM, and Cloudflare T
 ```mermaid
 flowchart BT
     subgraph A[Cloudlab]
-        A1[AnythingLLM + Vector DB]
-        A2[Cloudflare Tunnel]
+        A1[AnythingLLM]
+        A2[Vector DB]
     end
 
     CF[Cloudflare Tunnel]
     
     subgraph B[Homelab Inference Server]
-        B1[vLLM]
-        B2[Embeddings]
+        B1[vLLM + Embeddings]
+        B2[Cloudflare Tunnel]
     end
   
     A --> CF --> B
