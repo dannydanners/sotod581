@@ -30,5 +30,5 @@ flowchart TD
         B2[Embeddings]
     end
   
-    A --> T --> B
-    B --> T --> A
+    A --> CF --> B
+    B --> CF --> A
