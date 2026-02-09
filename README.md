@@ -24,12 +24,15 @@ flowchart BT
         A2[Vector DB]
     end
 
+    HTTP[HTTP]
+    HTTPS[HTTPS]
     CF[Cloudflare Tunnel]
     
     subgraph B[Homelab Inference Server]
         B1[vLLM + Embeddings]
         B2[Cloudflare Tunnel]
     end
-  
-    A --> CF --> B
-    B --> CF --> A
+    
+    A1 --> HTTP --> A2
+    A --> HTTPS, CF --> B
+    B --> HTTPS, CF --> A
