@@ -4,17 +4,6 @@ Daniel Adan Soto
 
 RAG-enabled, multi-host LLM deployment using AnythingLLM, vLLM, and Cloudflare Tunnel.
 
-## Base Images 
-
-**Cloudlab Host**
-- mintplexlabs/anythingllm
-- qdrant/qdrant
-
-**Homelab Host**
-- vllm/vllm-openai
-- vllm/vllm-openai
-- cloudflare/cloudflared
-
 ## Architecture
 
 ```mermaid
@@ -42,4 +31,15 @@ flowchart BT
 
     B1 -->|HTTPS| CF
     CF --> A1
+```
 
+## Base Images 
+
+**Cloudlab Host**
+- mintplexlabs/anythingllm
+- qdrant/qdrant
+
+**Homelab Host**
+- vllm/vllm-openai
+- vllm/vllm-openai
+- cloudflare/cloudflared
