@@ -6,13 +6,13 @@ RAG-enabled, multi-host LLM deployment using AnythingLLM, vLLM, and Cloudflare T
 
 ## Base Images 
 
-Cloudlab Host:
-   - mintplexlabs/anythingllm
-   - qdrant/qdrant
-Homelab Host:
-    - vllm/vllm-openai
-    - vllm/vllm-openai
-    - cloudflare/cloudflared
+**Cloudlab Host**
+- mintplexlabs/anythingllm
+- qdrant/qdrant
+**Homelab Host**
+- vllm/vllm-openai
+- vllm/vllm-openai
+- cloudflare/cloudflared
 
 ## Architecture
 
