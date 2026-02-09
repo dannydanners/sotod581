@@ -56,8 +56,8 @@ flowchart TD
   ALLM -->|store vectors| VDB
 
   %% RAG – Query
-  ALLM -->|POST /v1/embeddings (query)\nBearer EMB_API_KEY| CF_TUNNEL
-  ALLM -->|similarity search (top-k)| VDB
+  ALLM -->|POST /v1/embeddings \nBearer EMB_API_KEY| CF_TUNNEL
+  ALLM -->|similarity search | VDB
   VDB -->|relevant chunks| ALLM
 
   ALLM -->|POST /v1/chat/completions\nBearer VLLM_API_KEY| CF_TUNNEL
