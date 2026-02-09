@@ -22,16 +22,24 @@ flowchart BT
     subgraph A[Cloudlab]
         A1[AnythingLLM]
         A2[Vector DB]
+
+        A1 --> |HTTP| A2
     end
 
     CF[Cloudflare Tunnel]
     
     subgraph B[Homelab Inference Server]
-        B1[vLLM + Embeddings]
-        B2[Cloudflare Tunnel]
+        B1[vLLM]
+        B2[Embeddings]
+        B3[cloudflared]
+
+        B3 --> B2
+        B3 --> B1
     end
     
-    A1 -->|HTTP| A2
-    A1 -->|HTTPS| CF --> B2
-    B1 -->|HTTPS| CF --> A1
+    A1 -->|HTTPS| CF
+    CF --> B3
+
+    B1 -->|HTTPS| CF
+    CF --> A1
 
