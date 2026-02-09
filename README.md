@@ -24,8 +24,6 @@ flowchart BT
         A2[Vector DB]
     end
 
-    HTTP[HTTP]
-    HTTPS[HTTPS]
     CF[Cloudflare Tunnel]
     
     subgraph B[Homelab Inference Server]
