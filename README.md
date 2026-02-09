@@ -3,7 +3,7 @@ Daniel Adan Soto
 # Distributed Self-Hosted LLM Platform
 RAG-enabled, multi-host LLM deployment using AnythingLLM, vLLM, and Cloudflare Tunnel.
 
-flowchart LR
+flowchart TD
   %% =========================
   %% Clients / Edge
   %% =========================
