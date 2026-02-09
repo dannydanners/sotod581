@@ -1,13 +1,27 @@
 Daniel Adan Soto
 
 # Distributed Self-Hosted LLM Platform
+
 RAG-enabled, multi-host LLM deployment using AnythingLLM, vLLM, and Cloudflare Tunnel.
 
+## Base Images 
+
+Cloudlab Host
+    mintplexlabs/anythingllm
+    qdrant/qdrant
+Homelab Host
+    vllm/vllm-openai
+    vllm/vllm-openai
+    cloudflare/cloudflared
+
+## Architecture
+
+```mermaid
 flowchart TD
   %% Client
   U[User Browser]
 
-  %% Cloudflare Edge
+  %% Cloudflare
   CF_EDGE[Cloudflare\nDNS / TLS / WAF]
   CF_TUNNEL[Cloudflare Tunnel\nRouting]
 
@@ -50,13 +64,3 @@ flowchart TD
   CF_TUNNEL -->|vllm.mydomain.com| CFL
   VLLM -->|completion| ALLM
   ALLM -->|streamed response| U
-
-
-# Base Images:
-    Cloudlab Host
-        mintplexlabs/anythingllm
-        qdrant/qdrant
-    Homelab Host
-        vllm/vllm-openai
-        vllm/vllm-openai
-        cloudflare/cloudflared
