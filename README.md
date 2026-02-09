@@ -33,6 +33,7 @@ flowchart BT
         B2[Cloudflare Tunnel]
     end
     
-    A1 --> HTTP --> A2
-    A --> HTTPS, CF --> B
-    B --> HTTPS, CF --> A
+    A1 -->|HTTP| A2
+    A1 -->|HTTPS| CF --> B2
+    B1 -->|HTTPS| CF --> A1
+
