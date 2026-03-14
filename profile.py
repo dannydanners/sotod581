@@ -33,6 +33,9 @@ node.addService(rspec.Execute(
 
     sudo docker version
     sudo docker compose version
+
+    cd /local/repository
+    sudo docker compose up -d
     """
     ))
 #node.addService(rspec.Execute(shell="/bin/sh", command="sudo apt install -y apache2"))
