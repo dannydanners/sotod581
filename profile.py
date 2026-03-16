@@ -9,7 +9,7 @@ node.disk_image = "urn:publicid:IDN+emulab.net+image+emulab-ops:UBUNTU22-64-STD"
 node.routable_control_ip = "true"
 
 node.addService(rspec.Execute(
-    shell="/bin/sh",
+    shell="/bin/bash",
     command="""
 set -eux
 sudo apt update
