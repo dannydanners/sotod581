@@ -14,7 +14,7 @@ This profile provides the template for a compute node with Docker installed on U
 # Setup the Tour info with the above description and instructions.
 #  
 tour = IG.Tour()
-tour.Description(IG.Tour.TEXT,tourDescription)
+tour.Description(IG.Tour.TEXT, tourDescription)
 request.addTour(tour)
 
 node = request.XenVM("docker")
@@ -28,5 +28,6 @@ bs_landing.size = "500GB"
 node.disk_image = "urn:publicid:IDN+emulab.net+image+emulab-ops:UBUNTU18-64-STD"
 node.routable_control_ip = "true"
 node.addService(pg.Execute(shell="sh", command="sudo bash /local/repository/install_docker.sh"))
-  
+node.addService(pg.Execute(shell="sh", command="cd /local/repository/docker; sudo docker compose up -d"))
+
 pc.printRequestRSpec(request)
