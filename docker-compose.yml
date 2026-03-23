@@ -3,7 +3,7 @@ services:
   depends_on:
     - mongo
   build:
-    context: ./apps
+    context: ./apps/node_project
     dockerfile: Dockerfile
   ports:
     - "8080:8080"
