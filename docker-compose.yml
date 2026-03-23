@@ -1,0 +1,27 @@
+services:
+ node_project:
+  depends_on:
+    - mongos
+  build:
+    context: ./apps
+    dockerfile: Dockerfile
+  ports:
+    - "8080:8080"
+  networks:
+    - shared_net
+ mongo:
+   image: mongo:7
+   container_name: web-db
+   command: ["mongod", "--bind_ip_all"]
+   ports:
+     - "27017:27017"
+   volumes:
+     - mongo_dev_data:/data/db
+   networks:
+     - shared_net
+
+networks:
+  shared_net:
+
+volumes:
+  mongo_dev_data:
