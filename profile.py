@@ -17,7 +17,7 @@ tour = IG.Tour()
 tour.Description(IG.Tour.TEXT, tourDescription)
 request.addTour(tour)
 
-node = request.XenVM("docker")
+node = request.XenVM("sharks")
 node.cores = 8
 node.ram = 16
 node.routable_control_ip = "true" 
@@ -25,8 +25,9 @@ node.routable_control_ip = "true"
 bs_landing = node.Blockstore("bs_image", "/image")
 bs_landing.size = "500GB"
   
-node.disk_image = "urn:publicid:IDN+emulab.net+image+emulab-ops:UBUNTU18-64-STD"
+node.disk_image = "urn:publicid:IDN+emulab.net+image+emulab-ops:UBUNTU22-64-STD"
 node.routable_control_ip = "true"
+node.addService(pg.Execute(shell="sh", command="sudo chmod +x /local/repository/install_docker.sh"))
 node.addService(pg.Execute(shell="sh", command="sudo bash /local/repository/install_docker.sh"))
 node.addService(pg.Execute(shell="sh", command="cd /local/repository; sudo docker compose up -d"))
 
