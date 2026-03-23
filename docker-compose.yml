@@ -1,7 +1,7 @@
 services:
  node_project:
   depends_on:
-    - mongos
+    - mongo
   build:
     context: ./apps
     dockerfile: Dockerfile
