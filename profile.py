@@ -7,7 +7,7 @@ request = pc.makeRequestRSpec()
 
 tourDescription = \
 """
-This profile provides the template for a compute node with Docker installed on Ubuntu 18.04
+This profile provides the template for a compute node with Docker installed on Ubuntu 22.04
 """
 
 #
@@ -27,8 +27,14 @@ bs_landing.size = "500GB"
   
 node.disk_image = "urn:publicid:IDN+emulab.net+image+emulab-ops:UBUNTU22-64-STD"
 node.routable_control_ip = "true"
-node.addService(pg.Execute(shell="sh", command="sudo chmod +x /local/repository/install_docker.sh"))
-node.addService(pg.Execute(shell="sh", command="sudo bash /local/repository/install_docker.sh"))
-node.addService(pg.Execute(shell="sh", command="cd /local/repository; sudo docker compose up -d"))
+node.addService(pg.Execute(
+    shell="/bin/bash",
+    command="""
+set -eux
+cd /local/repository || exit 1
+sudo bash install_docker.sh > /tmp/install_docker.log 2>&1
+sudo docker compose up -d > /tmp/compose_up.log 2>&1
+"""
+))
 
 pc.printRequestRSpec(request)

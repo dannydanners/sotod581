@@ -1,26 +1,30 @@
 #!/bin/bash
-
-set -x
+set -eux
 
 sudo apt-get update
-sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common tmux sudo apt gnupg2 pass
+sudo apt-get install -y ca-certificates curl gnupg lsb-release jq httping
 
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+  sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
 echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-  
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
 sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose
-sudo apt-get install -y httping
-sudo apt-get install -y jq
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# the username needs to be changed
-while IFS= read -r line; do
-  sudo usermod -aG docker $line
-  sudo usermod -s /bin/bash $line
-done < <( ls -l /users | grep 4096 | cut -d' ' -f3 )
+if [ -f /local/repository/docker_config/daemon.json ]; then
+  sudo mkdir -p /etc/docker
+  sudo cp /local/repository/docker_config/daemon.json /etc/docker/daemon.json
+fi
 
-sudo cp /local/repository/docker_config/daemon.json /etc/docker/daemon.json
+sudo systemctl enable --now docker
 sudo systemctl daemon-reload
 sudo systemctl restart docker
+
+docker --version
+docker compose version
