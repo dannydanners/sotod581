@@ -31,8 +31,40 @@ node.addService(pg.Execute(
     shell="/bin/bash",
     command="""
 set -eux
-cd /local/repository || exit 1
+until [ -d /local/repository ]; do
+  echo "Waiting for repository..."
+  sleep 2
+done
+
+until [ -d /local/repository/apps/node_project ]; do
+  echo "Waiting for repository..."
+  sleep 2
+done
+
+cd /local/repository
+
+while sudo lsof /var/lib/dpkg/lock >/dev/null 2>&1; do
+  echo "Waiting for dpkg lock..."
+  sleep 2
+done
+
 sudo bash install_docker.sh > /tmp/install_docker.log 2>&1
+
+until command -v docker >/dev/null 2>&1; do
+  echo "Waiting for docker..."
+  sleep 2
+done
+
+until sudo docker info >/dev/null 2>&1; do
+  echo "Waiting for docker daemon..."
+  sleep 2
+done
+
+until docker compose version >/dev/null 2>&1; do
+  echo "Waiting for docker compose..."
+  sleep 2
+done
+
 sudo docker compose up -d > /tmp/compose_up.log 2>&1
 """
 ))
