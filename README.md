@@ -179,12 +179,12 @@ The homelab deployment uses k3s, which provides Kubernetes-native networking. In
 
 The CloudLab host and the homelab cluster are on different networks. The system uses Cloudflare Tunnel as the secure path between them.
 
-    The communication process is:
+The communication process is:
 
-        1. AnythingLLM on CloudLab sends a request to a Cloudflare Tunnel hostname over HTTPS.
-        2. Cloudflare receives the request and forwards it through the active tunnel.
-        3. The cloudflared pod inside the homelab receives the tunneled traffic.
-        4. The cloudflared pod forwards the request to the appropriate Kubernetes Service, such as vLLM or the embeddings service.
-        5. The response is returned through the tunnel back to AnythingLLM.
+1. AnythingLLM on CloudLab sends a request to a Cloudflare Tunnel hostname over HTTPS.
+2. Cloudflare receives the request and forwards it through the active tunnel.
+3. The cloudflared pod inside the homelab receives the tunneled traffic.
+4. The cloudflared pod forwards the request to the appropriate Kubernetes Service, such as vLLM or the embeddings service.
+5. The response is returned through the tunnel back to AnythingLLM.
 ---
 
