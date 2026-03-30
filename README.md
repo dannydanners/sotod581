@@ -26,7 +26,7 @@ The system is guided by the following design principles:
 
 At completion of the project the existing templates and files can be modified to maintain a fully local deploymenent or support a deployment on a Virtual Private Server (VPS).
 
-# Base Images Utilized
+### Base Images Utilized
 
 **Cloudlab Host**
 - mintplexlabs/anythingllm
@@ -68,7 +68,7 @@ flowchart BT
     CF --> A1
 ```
 
-### 1.2 High-Level Architecture
+### 1.3 High-Level Architecture Overview
 
 The platform consists of two primary hosts:
 
@@ -91,7 +91,7 @@ At a high level, the system operates as follows:
 This architecture follows cloud-native design principles, isolating compute-intensive inference workloads from user-facing services while maintaining secure communication between components.
 
 ---
-## Chapter 2: Technical Design and Implementation
+# Chapter 2: Technical Design and Implementation
 
 Host A runs the application and storage components on a CloudLab node. 
 
@@ -154,28 +154,30 @@ Official pre-built container images are utilized with the exception of configuri
 The containers on the CloudLab host are deployed via a docker-compose.yaml.
 
 Currently, the images for inferencing, embeddings, and cloudfare tunnel are deployed as via a mix of helm charts and plain manifests.
+
 ---
 ### 2.2 Networking
 
 **Docker Networking** 
-    Communication between AnythingLLM and the vector database occurs locally over the Docker network using standard HTTP/TCP connections via the Docker Bridge Network specified as "rag-network".
+Communication between AnythingLLM and the vector database occurs locally over the Docker network using standard HTTP/TCP connections via the Docker Bridge Network specified as "rag-network".
 
-    This allows for communication between the AnythingLLM container and the Qdrant container.
+This allows for communication between the AnythingLLM container and the Qdrant container.
 
-    Docker Compose places the containers on the specified internal bridge network, which provides DNS resolution by service name. Because of this, the AnythingLLM container can communicate with the Qdrant container using the hostname `qdrant` and port `6333`.
+Docker Compose places the containers on the specified internal bridge network, which provides DNS resolution by service name. Because of this, the AnythingLLM container can communicate with the Qdrant container using the hostname `qdrant` and port `6333`.
 
-    The AnythingLLM GUI is exposed on port `3001`, so users can access it from a browser using the CloudLab node’s public IP address, for example: `http://<cloudlab-node-ip>:3001`.
+The AnythingLLM GUI is exposed on port `3001`, so users can access it from a browser using the CloudLab node’s public IP address, for example: `http://<cloudlab-node-ip>:3001`.
 
 **Kubernetes Networking in the Homelab**
 
-    The homelab deployment uses k3s, which provides Kubernetes-native networking. In Kubernetes, stable communication happens through Services.
+The homelab deployment uses k3s, which provides Kubernetes-native networking. In Kubernetes, stable communication happens through Services.
 
    * The vLLM pod is exposed internally through a Service such as vllm-svc
    * The embeddings pod is exposed internally through a Service such as tei-embed-svc
    * The cloudflared pod forwards inbound tunnel traffic to those internal Services
 
 **Cross-Host Communication with Cloudflare Tunnel**
-    The CloudLab host and the homelab cluster are on different networks. The system uses Cloudflare Tunnel as the secure path between them.
+
+The CloudLab host and the homelab cluster are on different networks. The system uses Cloudflare Tunnel as the secure path between them.
 
     The communication process is:
 
