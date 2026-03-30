@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm
+  template:
+    metadata:
+      labels:
+        app: vllm
+    spec:
+      enableServiceLinks: false
+      runtimeClassName: nvidia
+      nodeSelector:
+        gpu: "true"
+      volumes:
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: "8Gi"
+        - name: hf-cache
+          hostPath:
+            path: /var/lib/vllm-cache
+            type: DirectoryOrCreate
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:latest
+          args:
+            - mistralai/Mistral-7B-Instruct-v0.3
+            - --host
+            - 0.0.0.0
+            - --port
+            - "8000"
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              nvidia.com/gpu: "1"
+              cpu: "4"
+              memory: "16Gi"
+            limits:
+              nvidia.com/gpu: "1"
+              cpu: "8"
+              memory: "24Gi"
+          volumeMounts:
+            - name: shm
+              mountPath: /dev/shm
+            - name: hf-cache
+              mountPath: /root/.cache/huggingface
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-svc
+spec:
+  selector:
+    app: vllm
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: ClusterIP

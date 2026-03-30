@@ -39,7 +39,8 @@ flowchart BT
 - mintplexlabs/anythingllm
 - qdrant/qdrant
 
-**Homelab Host**
-- vllm/vllm-openai
-- vllm/vllm-openai
-- cloudflare/cloudflared
+**Homelab Host** 
+K3s cluster deployment 
+- vllm/vllm-openai:latest
+- ghcr.io/huggingface/text-embeddings-inference:cpu-1.9
+- cloudflare/cloudflared:latest

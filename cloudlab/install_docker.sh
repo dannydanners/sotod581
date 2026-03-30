@@ -21,6 +21,6 @@ while IFS= read -r line; do
   sudo usermod -s /bin/bash $line
 done < <( ls -l /users | grep 4096 | cut -d' ' -f3 )
 
-sudo cp /local/repository/docker_config/daemon.json /etc/docker/daemon.json
+sudo cp /local/repository/cloudlab/docker_config/daemon.json /etc/docker/daemon.json
 sudo systemctl daemon-reload
 sudo systemctl restart docker

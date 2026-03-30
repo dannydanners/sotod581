@@ -27,7 +27,7 @@ bs_landing.size = "500GB"
   
 node.disk_image = "urn:publicid:IDN+emulab.net+image+emulab-ops:UBUNTU22-64-STD"
 node.routable_control_ip = "true"
-node.addService(pg.Execute(shell="sh", command="sudo bash /local/repository/install_docker.sh"))
-node.addService(pg.Execute(shell="sh", command="cd /local/repository/docker; sudo docker compose up -d"))
+node.addService(pg.Execute(shell="sh", command="sudo bash /local/repository/cloudlab/install_docker.sh"))
+node.addService(pg.Execute(shell="sh", command="cd /local/repository/cloudlab/docker; sudo docker compose up -d"))
 
 pc.printRequestRSpec(request)

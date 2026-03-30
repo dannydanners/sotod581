@@ -11,7 +11,10 @@ services:
       - rag-network
 
   anythingllm:
-    image: mintplexlabs/anythingllm:latest
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: sotod-anythingllm:latest
     container_name: anythingllm
     restart: unless-stopped
     ports:
