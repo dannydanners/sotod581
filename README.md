@@ -153,12 +153,13 @@ Official pre-built container images are utilized with the exception of configuri
 
 The containers on the CloudLab host are deployed via a docker-compose.yaml.
 
-Currently, the images for inferencing, embeddings, and cloudfare tunnel are deployed as via a mix of helm charts and plain manifests.
+Currently, the images for inferencing, embeddings, and cloudfare tunnel are deployed via a mix of helm charts and plain manifests.
 
 ---
 ### 2.2 Networking
 
 **Docker Networking** 
+
 Communication between AnythingLLM and the vector database occurs locally over the Docker network using standard HTTP/TCP connections via the Docker Bridge Network specified as "rag-network".
 
 This allows for communication between the AnythingLLM container and the Qdrant container.
