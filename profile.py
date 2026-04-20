@@ -18,12 +18,12 @@ tour.Description(IG.Tour.TEXT, tourDescription)
 request.addTour(tour)
 
 node = request.XenVM("docker")
-node.cores = 8
-node.ram = 16
+node.cores = 4
+node.ram = 8
 node.routable_control_ip = "true" 
 
-bs_landing = node.Blockstore("bs_image", "/image")
-bs_landing.size = "500GB"
+#bs_landing = node.Blockstore("bs_image", "/image")
+#bs_landing.size = "500GB"
   
 node.disk_image = "urn:publicid:IDN+emulab.net+image+emulab-ops:UBUNTU22-64-STD"
 node.routable_control_ip = "true"
