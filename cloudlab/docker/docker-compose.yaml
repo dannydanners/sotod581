@@ -11,10 +11,7 @@ services:
       - rag-network
 
   anythingllm:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    image: sotod-anythingllm:latest
+    image: ghcr.io/dannydanners/anythingllm-cloudlab:docker
     container_name: anythingllm
     restart: unless-stopped
     ports:
