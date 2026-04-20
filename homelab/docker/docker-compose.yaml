@@ -44,27 +44,9 @@ services:
     depends_on:
       - vllm
       - tei
-    secrets:
-      - cloudflare_tunnel_token
-    entrypoint:
-      - sh
-      - -c
-      - |
-        exec cloudflared tunnel --no-autoupdate run --token "$$(cat /run/secrets/cloudflare_tunnel_token)"
-  
-  watchtower:
-    image: containrrr/watchtower:latest
-    container_name: watchtower
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
     command:
-      - --interval
-      - "300"
-      - vllm
-      - tei
-      - cloudflared
-
-  secrets:
-    cloudflare_tunnel_token:
-      file: ./secrets/cloudflare_tunnel_token
+      - tunnel 
+      - --no-autoupdate
+      - run
+      - --token
+      - ${CLOUDFLARE_TUNNEL_TOKEN}
