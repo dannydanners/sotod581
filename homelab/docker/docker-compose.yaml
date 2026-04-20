@@ -44,12 +44,13 @@ services:
     depends_on:
       - vllm
       - tei
-    command:
-      - tunnel
-      - --no-autoupdate
-      - run
-      - --token
-      - ${CLOUDFLARE_TUNNEL_TOKEN}
+    secrets:
+      - cloudflare_tunnel_token
+    entrypoint:
+      - sh
+      - -c
+      - |
+        exec cloudflared tunnel --no-autoupdate run --token "$$(cat /run/secrets/cloudflare_tunnel_token)"
   
   watchtower:
     image: containrrr/watchtower:latest
@@ -63,3 +64,7 @@ services:
       - vllm
       - tei
       - cloudflared
+
+  secrets:
+    cloudflare_tunnel_token:
+      file: ./secrets/cloudflare_tunnel_token
