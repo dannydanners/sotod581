@@ -32,8 +32,6 @@ services:
       - rag-network
     security_opt:
       - no-new-privileges:true
-    cap_drop:
-      - ALL
 
 volumes:
   qdrant_storage:
