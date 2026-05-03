@@ -7,6 +7,10 @@ services:
       - "6333:6333"
     volumes:
       - qdrant_storage:/qdrant/storage
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     networks:
       - rag-network
 
@@ -26,6 +30,10 @@ services:
       - qdrant
     networks:
       - rag-network
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
 
 volumes:
   qdrant_storage:

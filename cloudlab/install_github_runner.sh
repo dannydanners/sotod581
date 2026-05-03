@@ -22,6 +22,10 @@ if getent group docker >/dev/null 2>&1; then
   usermod -aG docker "$RUNNER_USER"
 fi
 
+if [[ -d /local/repository ]]; then
+  chown -R "${RUNNER_USER}:${RUNNER_USER}" /local/repository
+fi
+
 mkdir -p "$RUNNER_DIR"
 chown -R "${RUNNER_USER}:${RUNNER_USER}" "$RUNNER_BASE_DIR"
 
