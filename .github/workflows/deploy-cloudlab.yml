@@ -1,0 +1,30 @@
+name: Deploy CloudLab
+
+on:
+  workflow_run:
+    workflows: ["Build and Publish Images"]
+    types: [completed]
+  workflow_dispatch:
+
+jobs:
+  deploy-cloudlab:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'docker')
+    runs-on: [self-hosted, linux, cloudlab]
+
+    steps:
+      - name: Update repo on CloudLab host
+        run: |
+          set -euo pipefail
+          cd /local/repository
+          git fetch origin docker
+          git reset --hard origin/docker
+
+      - name: Pull and restart CloudLab stack
+        run: |
+          set -euo pipefail
+          cd /local/repository/cloudlab/docker
+          docker compose pull
+          docker compose up -d
