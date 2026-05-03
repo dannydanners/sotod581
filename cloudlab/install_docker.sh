@@ -11,7 +11,7 @@ echo \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
   
 sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 sudo apt-get install -y httping
 sudo apt-get install -y jq
 
@@ -24,3 +24,6 @@ done < <( ls -l /users | grep 4096 | cut -d' ' -f3 )
 sudo cp /local/repository/cloudlab/docker_config/daemon.json /etc/docker/daemon.json
 sudo systemctl daemon-reload
 sudo systemctl restart docker
+
+docker --version
+docker compose version
