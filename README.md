@@ -192,5 +192,6 @@ AnythingLLM is configured through its web interface after the containers are run
 | Vector Database | Qdrant | `http://qdrant:6333` |
 
 The vLLM and TEI endpoints are reached through Cloudflare Tunnel. Qdrant is reached internally through the Docker Compose network on the CloudLab host.
+
 ---
 
