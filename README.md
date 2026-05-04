@@ -24,16 +24,16 @@ The system is guided by the following design principles:
 - **Extensibility**  
   Models, embedding services, and vector databases can be replaced or upgraded without redesigning the overall system.
 
-At completion of the project the existing templates and files can be modified to maintain a fully local deploymenent or support a deployment on a Virtual Private Server (VPS).
+At completion of the project, the existing templates and files can be modified to maintain a fully local deployment or support a deployment on a Virtual Private Server (VPS).
 
 ### Base Images Utilized
 
-**Cloudlab Host**
+**CloudLab Host**
 - mintplexlabs/anythingllm
 - qdrant/qdrant
 
 **Homelab Host** 
-K3s cluster deployment 
+Docker Compose deployment
 - vllm/vllm-openai:latest
 - ghcr.io/huggingface/text-embeddings-inference:cpu-1.9
 - cloudflare/cloudflared:latest
@@ -42,40 +42,30 @@ K3s cluster deployment
 ### 1.2 Architecture
 
 ```mermaid
-flowchart BT
-    subgraph A[Cloudlab]
-        A1[AnythingLLM]
-        A2[Vector DB]
+flowchart LR
+    User[User Browser] --> A1[AnythingLLM<br/>Remote CloudLab]
 
-        A1 --> |HTTP| A2
+    subgraph Remote[Remote Deployment: CloudLab]
+        A1 --> A2[Qdrant<br/>Vector DB]
     end
 
-    CF[Cloudflare Tunnel]
-    
-    subgraph B[Homelab Inference Server]
-        B1[vLLM]
-        B2[Embeddings]
-        B3[cloudflared]
+    A1 -->|HTTPS via Cloudflare Tunnel| CF[Cloudflare Edge]
 
-        B3 --> B2
-        B3 --> B1
+    subgraph Local[Local Deployment: Homelab GPU Node]
+        CF --> B3[cloudflared]
+        B3 --> B1[vLLM<br/>Chat Inference]
+        B3 --> B2[TEI<br/>Embeddings]
     end
-    
-    A1 -->|HTTPS| CF
-    CF --> B3
-
-    B1 -->|HTTPS| CF
-    CF --> A1
 ```
 
 ### 1.3 High-Level Architecture Overview
 
 The platform consists of two primary hosts:
 
-- **Host A (Application Host)**  
+- **Remote Deployment (Application Host)**  
   Frontend responsible for user interaction, document ingestion, and vector storage.
 
-- **Host B (Inference Host)**  
+- **Local Deployment (Inference Host)**  
   Backend responsible for embedding generation and LLM inference.
 
 A **Cloudflare Tunnel** provides secure connectivity between the two hosts, allowing the application host to access inference services without opening inbound firewall ports.
@@ -93,7 +83,7 @@ This architecture follows cloud-native design principles, isolating compute-inte
 ---
 # Chapter 2: Technical Design and Implementation
 
-Host A runs the application and storage components on a CloudLab node. 
+CloudLab Host runs the application and storage components on a CloudLab node. 
 
 Responsibilities:
 - Handling user interaction
@@ -101,7 +91,7 @@ Responsibilities:
 - Vector storage and similarity search
 - Orchestrating retrieval-augmented generation workflows
 
-The primary services deployed on Host A are:
+The primary services deployed on CloudLab Host are:
 
 - **AnythingLLM**  
   Provides the user interface and coordinates the RAG pipeline, including document ingestion, embedding requests, and prompt construction.
@@ -109,8 +99,7 @@ The primary services deployed on Host A are:
 - **Vector Database (Qdrant)**  
   Stores vector embeddings and supports similarity search operations.
 
-Host B is dedicated to model execution and embedding generation. It is isolated from direct user access and does not expose any inbound network ports.
-Model execution utilizes a GPU node on the cluster with the embedding service utilizing any worker node.
+Local GPU Node is dedicated to model execution and embedding generation. It is isolated from direct user access and does not expose any inbound network ports.
 
 The inference host runs the following services:
 
@@ -121,7 +110,7 @@ The inference host runs the following services:
   Runs as a separate container to generate embeddings for both document ingestion and query processing.
 
 - **Cloudflare Tunnel Agent (`cloudflared`)**  
-  Maintains an outbound-only secure connection that allows Host A to reach inference services through HTTPS endpoints.
+  Maintains an outbound-only secure connection that allows the CloudLab host to reach local inference services through HTTPS endpoints.
 
 Separating the embedding service and chat inference into different containers allows each workload to be tuned and managed independently.
 
@@ -133,6 +122,7 @@ Official pre-built container images are utilized with the exception of configuri
 * mintplexlabs/anythingllm
 
     This image was chosen because it provides a ready-to-run AnythingLLM environment. It includes the application and its required runtime dependencies, which avoids the need to manually build and package the application. Since AnythingLLM is the orchestration and user-facing layer of the platform, using the official container image simplifies deployment and ensures consistency.
+    The official image serves as the base image for new images generated in the GH Actions Workflow.
 
 * qdrant/qdrant
 
@@ -141,7 +131,7 @@ Official pre-built container images are utilized with the exception of configuri
 * vllm/vllm-openai:latest
 
     This image was chosen because vLLM is optimized for efficient LLM inference and exposes an OpenAI-compatible API. That makes it a strong fit for a self-hosted inference backend, especially when the upstream application expects an OpenAI-style endpoint. It is deployed on the homelab GPU node to handle generation workloads.
-    Currently configured with mistralai/Mistral-7B-Instruct-v0.3 however, a larger model can be substituted.
+    Currently configured with `mistralai/Mistral-7B-Instruct-v0.3` however, a larger, or smaller, model can be substituted.
 
 * ghcr.io/huggingface/text-embeddings-inference:cpu-1.9
 
@@ -149,11 +139,12 @@ Official pre-built container images are utilized with the exception of configuri
 
 * cloudflare/cloudflared:latest
 
-    This image was chosen because it provides secure outbound-only tunnel connectivity between the homelab cluster and the public Cloudflare edge. This avoids exposing the homelab inference services directly to the internet and removes the need for port forwarding into the local network.
+    This image was chosen because it provides secure outbound-only tunnel connectivity between the homelab gpu node and the public Cloudflare edge. This avoids exposing the homelab inference services directly to the internet and removes the need for port forwarding into the local network.
 
 The containers on the CloudLab host are deployed via a docker-compose.yaml.
+A self-hosted GitHub Actions runner performs the initial deployment and updates the deployment after new images are built and published to the GitHub Container Registry.
 
-Currently, the images for inferencing, embeddings, and cloudfare tunnel are deployed via a mix of helm charts and plain manifests.
+Currently, the images for inference, embeddings, and CloudFlare tunnel are deployed manually using a `docker-compose.yaml` file.
 
 ---
 ### 2.2 Networking
@@ -168,24 +159,38 @@ Docker Compose places the containers on the specified internal bridge network, w
 
 The AnythingLLM GUI is exposed on port `3001`, so users can access it from a browser using the CloudLab node’s public IP address, for example: `http://<cloudlab-node-ip>:3001`.
 
-**Kubernetes Networking in the Homelab**
+**Docker Networking in the Homelab**
 
-The homelab deployment uses k3s, which provides Kubernetes-native networking. In Kubernetes, stable communication happens through Services.
+The homelab deployment uses Docker Compose, which provides service-based networking through a shared Docker bridge network. In Docker Compose, containers can communicate with each other using their service names as hostnames.
 
-   * The vLLM pod is exposed internally through a Service such as vllm-svc
-   * The embeddings pod is exposed internally through a Service such as tei-embed-svc
-   * The cloudflared pod forwards inbound tunnel traffic to those internal Services
+   * The vLLM container is exposed internally through a Compose service, such as `vllm`
+   * The embeddings container is exposed internally through a Compose service, such as `tei-embed`
+   * The `cloudflared` container forwards tunnel traffic to those internal Docker services
 
 **Cross-Host Communication with Cloudflare Tunnel**
 
-The CloudLab host and the homelab cluster are on different networks. The system uses Cloudflare Tunnel as the secure path between them.
+The CloudLab host and the homelab GPU node are on different networks. The system uses Cloudflare Tunnel as the secure path between them.
 
 The communication process is:
 
 1. AnythingLLM on CloudLab sends a request to a Cloudflare Tunnel hostname over HTTPS.
 2. Cloudflare receives the request and forwards it through the active tunnel.
-3. The cloudflared pod inside the homelab receives the tunneled traffic.
-4. The cloudflared pod forwards the request to the appropriate Kubernetes Service, such as vLLM or the embeddings service.
+3. The cloudflared container inside the homelab receives the tunneled traffic.
+4. The cloudflared container forwards the request to the appropriate Docker Service, such as `vllm` or `tei-embed`
 5. The response is returned through the tunnel back to AnythingLLM.
+
+This design keeps the homelab inference services private and avoids exposing inbound ports on the local network.
+
+### 2.3 AnythingLLM Configuration
+
+AnythingLLM is configured through its web interface after the containers are running.
+
+| Component | AnythingLLM Setting | Value |
+|---|---|---|
+| LLM Provider | Generic OpenAI | `https://vllm-api.<domain>/v1` |
+| Embedding Provider | Generic OpenAI-compatible | `https://embed-api.<domain>/v1` |
+| Vector Database | Qdrant | `http://qdrant:6333` |
+
+The vLLM and TEI endpoints are reached through Cloudflare Tunnel. Qdrant is reached internally through the Docker Compose network on the CloudLab host.
 ---
 
